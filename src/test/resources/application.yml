@@ -11,3 +11,5 @@ spring:
 
 security:
   signing-key: <signing-key>
+
+auth-server-health: https://reloa.com
