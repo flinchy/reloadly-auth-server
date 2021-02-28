@@ -13,12 +13,17 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static com.chisom.authorizationserver.constant.AppConstant.USER;
 
@@ -31,19 +36,23 @@ public class AppUserServiceImpl implements AppUserService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RestTemplate restTemplate;
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
+    private final String authServerHost;
 
     @Autowired
     public AppUserServiceImpl(
             AppUserRepository appUserRepository,
             PasswordEncoder passwordEncoder,
-            RoleRepository roleRepository, ModelMapper modelMapper
-    ) {
+            RestTemplate restTemplate, RoleRepository roleRepository,
+            ModelMapper modelMapper, @Value("${auth-server-health}") String authServerHost) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.restTemplate = restTemplate;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
+        this.authServerHost = authServerHost;
     }
 
     /**
@@ -118,5 +127,19 @@ public class AppUserServiceImpl implements AppUserService {
         log.info("saving updated user record to db ::: {}", appUser);
 
         return appUser;
+    }
+
+    /**
+     * ping url every 5min to keep alive
+     */
+    @Async
+    @Scheduled(fixedRate = 300000)
+    public void health() {
+        try {
+            CompletableFuture.runAsync(() ->
+                    restTemplate.getForObject(authServerHost, Object.class));
+        } catch (Exception e) {
+            log.error("caught an exception :::", e);
+        }
     }
 }
