@@ -129,17 +129,17 @@ public class AppUserServiceImpl implements AppUserService {
         return appUser;
     }
 
-    /**
-     * ping url every 5min to keep alive
-     */
-    @Async
-    @Scheduled(fixedRate = 300000)
-    public void health() {
-        try {
-            CompletableFuture.runAsync(() ->
-                    restTemplate.getForObject(authServerHost, Object.class));
-        } catch (Exception e) {
-            log.error("caught an exception :::", e);
-        }
-    }
+//    /**
+//     * ping url every 5min to keep alive
+//     */
+//    @Async
+//    @Scheduled(fixedRate = 300000)
+//    public void health() {
+//        try {
+//            CompletableFuture.runAsync(() ->
+//                    restTemplate.getForObject(authServerHost, Object.class));
+//        } catch (Exception e) {
+//            log.error("caught an exception :::", e);
+//        }
+//    }
 }
