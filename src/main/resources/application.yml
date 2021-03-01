@@ -46,7 +46,7 @@ eureka:
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 
-auth-server-health: https://reloadly-auth-server.herokuapp.com
+auth-server-health: https://reloadly-auth-server.herokuapp.com/actuator/health
 
 ---
 app:

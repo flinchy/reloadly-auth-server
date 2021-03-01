@@ -38,7 +38,6 @@ public class Configurations {
      * @return RestTemplate.
      */
     @Bean
-    @LoadBalanced
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
